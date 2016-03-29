@@ -89,7 +89,7 @@ do_compile () {
                 if [ $j -eq $i ]
                 then
                     oe_runmake O=${config} ${config}
-                    oe_runmake O=${config} ${UBOOT_MAKE_TARGET}
+                    oe_runmake O=${config} EXT_DTB=${UBOOT_EXT_DTB} ${UBOOT_MAKE_TARGET}
                     cp  ${S}/${config}/${UBOOT_BINARY}  ${S}/${config}/u-boot-${type}.${UBOOT_SUFFIX}
                 fi
             done
@@ -98,7 +98,7 @@ do_compile () {
         unset  i
     else
         oe_runmake ${UBOOT_MACHINE}
-        oe_runmake ${UBOOT_MAKE_TARGET}
+        oe_runmake EXT_DTB=${UBOOT_EXT_DTB} ${UBOOT_MAKE_TARGET}
     fi
 
 }
