@@ -73,7 +73,7 @@ EOF
 # $3 ... Compression type
 fitimage_emit_section_kernel() {
 
-	kernel_csum="sha1"
+	kernel_csum="sha256"
 
 	ENTRYPOINT=${UBOOT_ENTRYPOINT}
 	if test -n "${UBOOT_ENTRYSYMBOL}"; then
@@ -105,7 +105,7 @@ EOF
 # $2 ... Path to DTB image
 fitimage_emit_section_dtb() {
 
-	dtb_csum="sha1"
+	dtb_csum="sha256"
 
 	cat << EOF >> fit-image.its
                 fdt@${1} {
@@ -128,7 +128,7 @@ EOF
 # $2 ... DTB image ID
 fitimage_emit_section_config() {
 
-	conf_csum="sha1"
+	conf_csum="sha256"
 
 	# Test if we have any DTBs at all
 	if [ -z "${2}" ] ; then
@@ -146,8 +146,10 @@ fitimage_emit_section_config() {
                         description = "${conf_desc}";
 			${kernel_line}
 			${fdt_line}
-                        hash@1 {
-                                algo = "${conf_csum}";
+                        signature@1 {
+                                algo = "${conf_csum},rsa2048";
+                                key-name-hint = "dev";
+                                sign-images = "fdt", "kernel";
                         };
                 };
 EOF
@@ -209,7 +211,10 @@ do_assemble_fitimage() {
 		#
 		# Step 4: Assemble the image
 		#
-		uboot-mkimage -f fit-image.its arch/${ARCH}/boot/fitImage
+		uboot-mkimage -f fit-image.its \
+                              -K arch/${ARCH}/boot/dts/${DTB} \
+                              -k /home/ubuntu/work/keys -r \
+                              arch/${ARCH}/boot/fitImage
 	fi
 }
 
